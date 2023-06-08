@@ -1,25 +1,28 @@
 (function () {
     obtenerTareas();
 
+    //Variables para guardar todas las tareas de forma general.
     let tareas = [];
+    //Permite guardar las variables que hemos filtrado.
     let filtradas = [];
+
+    //Este codigo nos permite realizar una nueva tarea.
     const nuevaTareaBtn = document.querySelector('#agregar_tarea');
     nuevaTareaBtn.addEventListener('click', () => mostrarFormulario());
 
+    //Nos permite apliacar los filtros de la apliacion la parte de la tarea
     const filtros = document.querySelectorAll('#filtros input[type="radio"]');
-    filtros.forEach( radio => {
-        radio.addEventListener('input',filtrarTareas);
+    filtros.forEach(radio => {
+        radio.addEventListener('input', filtrarTareas);
     });
-    function filtrarTareas(e){
-       const filtro = e.target.value;
-       if (filtro !== ''){
-            filtradas = tareas.filter(tarea => tarea.estado === filtro);
-            console.log(filtradas);
-       }else{
-         filtradas = [];
-       }
-       mostrarTareas();
-    }   
+    function filtrarTareas(e) {
+        const filtro = e.target.value;
+        if (filtro !== '') filtradas = tareas.filter(tarea => tarea.estado === filtro);
+        else filtradas = [];
+        mostrarTareas();
+    }
+
+    //Funcion que nos permite obtener la tarea conectando con la api. 
     async function obtenerTareas() {
         try {
             const id = obtenerProyecto();
@@ -28,17 +31,18 @@
             const resultado = await respuesta.json();
             tareas = resultado.tareas;
             mostrarTareas();
-
         } catch (error) {
             console.log(error);
         }
     }
+
+    //Funcion que nos permite dibujar las tareas
     function mostrarTareas() {
         limpiarTareas();
         totalPendiente();
         totalCompletas()
         const arrayTareas = filtradas.length ? filtradas : tareas;
-        if (arrayTareas.length === 0 ) {
+        if (arrayTareas.length === 0) {
             const contenedorTareas = document.querySelector('#listado_tareas');
             const textoNoTareas = document.createElement('LI');
             textoNoTareas.textContent = 'No hay tareas';
@@ -58,7 +62,7 @@
             const nombreTarea = document.createElement('P');
             nombreTarea.textContent = tarea.nombre;
             nombreTarea.ondblclick = function () {
-                mostrarFormulario(true, {...tarea});
+                mostrarFormulario(true, { ...tarea });
             }
             const opcinesDiv = document.createElement('DIV');
             opcinesDiv.classList.add('opciones');
@@ -75,10 +79,7 @@
             btnEliminarTarea.classList.add('eliminar-tarea');
             btnEliminarTarea.dataset.idTarea = tarea.id;
             btnEliminarTarea.textContent = 'Eliminar';
-            btnEliminarTarea.ondblclick = function () {
-                confirmarElminarTarea({ ...tarea });
-
-            }
+            btnEliminarTarea.ondblclick = () => confirmarElminarTarea({ ...tarea });
 
             opcinesDiv.appendChild(btnEstadoTarea);
             opcinesDiv.appendChild(btnEliminarTarea);
@@ -114,11 +115,7 @@
             if (e.target.classList.contains('cerrar-modal')) {
                 const formulario = document.querySelector('.formulario');
                 formulario.classList.add('cerrar');
-                setTimeout(() => {
-
-                    modal.remove();
-
-                }, 500);
+                setTimeout(() => modal.remove(), 500);
             }
             if (e.target.classList.contains('submit-nueva-tarea')) {
                 const nombreTarea = document.querySelector('#tarea').value.trim();
@@ -126,51 +123,35 @@
                     mostrarAlerta('El nombre de la tarea es obligatorio', 'error', document.querySelector('.formulario legend'));
                     return;
                 }
-                if (editar){
-                    tarea.nombre= nombreTarea;
+                if (editar) {
+                    tarea.nombre = nombreTarea;
                     actualizarTarea(tarea)
-                }else{
-                    agregarTarea(nombreTarea);
-                }
-
+                } else agregarTarea(nombreTarea);
             }
         });
         document.querySelector('.dashboard').appendChild(modal);
 
     }
-    function totalPendiente (){
+    function totalPendiente() {
         const totalPendiente = tareas.filter(tarea => tarea.estado === "0");
         const pendientesRadio = document.querySelector('#pendientes');
-        if (totalPendiente.length === 0){
-            pendientesRadio.disabled = true;
-
-        }else{
-            pendientesRadio.disabled = false;
-        }
+        if (totalPendiente.length === 0) pendientesRadio.disabled = true;
+        else pendientesRadio.disabled = false;
     }
-    function totalCompletas(){
+    function totalCompletas() {
         const totalCompletas = tareas.filter(tarea => tarea.estado === "1");
         const completadasRadio = document.querySelector('#completadas');
-        if (totalCompletas.length === 0){
-            completadasRadio.disabled = true;
-        }else{
-            completadasRadio.disabled = false;
-        }  
+        if (totalCompletas.length === 0) completadasRadio.disabled = true;
+        else completadasRadio.disabled = false;
     }
     function mostrarAlerta(mensaje, tipo, referencia) {
         const alertaPrevia = document.querySelector('.alertas');
-        if (alertaPrevia) {
-            alertaPrevia.remove();
-        }
+        if (alertaPrevia) alertaPrevia.remove();
         const alerta = document.createElement('DIV');
         alerta.classList.add('alertas', tipo);
         alerta.textContent = mensaje;
         referencia.parentElement.insertBefore(alerta, referencia.nextElementSibling);
-        setTimeout(() => {
-            alerta.remove();
-        }, 5000);
-
-
+        setTimeout(() => alerta.remove(), 5000);
     }
 
 
@@ -188,9 +169,7 @@
             mostrarAlerta(resultado.mensaje, resultado.tipo, document.querySelector('.formulario legend'));
             if (resultado.tipo === 'exito') {
                 const modal = document.querySelector('.modal');
-                setTimeout(() => {
-                    modal.remove();
-                }, 3000);
+                setTimeout(() => modal.remove(), 3000);
                 const tareaOb = {
                     id: String(resultado.id),
                     nombre: tarea,
@@ -226,14 +205,14 @@
             });
             const resultado = await respuesta.json();
             if (resultado.repuesta.tipo === 'exito') {
-    
+
                 Swal.fire(
                     resultado.repuesta.mensaje,
                     resultado.repuesta.mensaje,
                     'success'
                 );
                 const modal = document.querySelector('.modal');
-                if(modal)
+                if (modal)
                     modal.remove();
 
                 tareas = tareas.map(tareaMemoria => {
@@ -257,10 +236,7 @@
             confirmButtonText: 'Si',
             cancelButtonText: `No`,
         }).then((result) => {
-
-            if (result.isConfirmed) {
-                eliminarTarea(tarea)
-            }
+            if (result.isConfirmed) eliminarTarea(tarea)
         })
     }
     async function eliminarTarea(tarea) {
