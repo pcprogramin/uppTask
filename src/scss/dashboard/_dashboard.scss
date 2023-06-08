@@ -3,9 +3,11 @@
 
 .dashboard{
     background-color: v.$girsClaro;
+    height: 100vh;
+    overflow: auto;
     @include m.tablet{
         display: flex;
-        height: 100vh;
+       
         .principal{
             flex: 1;
             overflow-y: scroll;
