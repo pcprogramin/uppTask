@@ -2,9 +2,12 @@
 @use 'base/variables' as v;
 
 .sidebar {
+    display: none;
     background-color: v.$indigo;
     padding: 2rem;
-
+    @include m.tablet{
+        display: block;
+    }
     h2 {
         color: v.$blanco;
         margin: 0;

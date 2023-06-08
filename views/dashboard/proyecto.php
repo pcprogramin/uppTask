@@ -6,6 +6,26 @@
                 &#43; Nueva Tarea
             </button>
         </div>
+        <div class="filtros" id="filtros">
+            <div class="filtros-inputs">
+                <h2>Filtros:</h2>
+                <div class="campo">
+                    <label for="todas">Todas</label>
+                    <input type="radio" id="todas" value="" name="filtro" checked >
+
+                </div>
+                <div class="campo">
+                    <label for="todas">Completadas</label>
+                    <input type="radio" id="completadas" value="1" name="filtro" >
+
+                </div>
+                <div class="campo">
+                    <label for="todas">Pendientes</label>
+                    <input type="radio" id="pendientes" value="0" name="filtro" >
+
+                </div>
+            </div>
+        </div>
         <ul id = "listado_tareas" class="listado-tareas">
 
         </ul>

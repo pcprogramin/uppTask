@@ -2,9 +2,24 @@
     obtenerTareas();
 
     let tareas = [];
-
+    let filtradas = [];
     const nuevaTareaBtn = document.querySelector('#agregar_tarea');
     nuevaTareaBtn.addEventListener('click', () => mostrarFormulario());
+
+    const filtros = document.querySelectorAll('#filtros input[type="radio"]');
+    filtros.forEach( radio => {
+        radio.addEventListener('input',filtrarTareas);
+    });
+    function filtrarTareas(e){
+       const filtro = e.target.value;
+       if (filtro !== ''){
+            filtradas = tareas.filter(tarea => tarea.estado === filtro);
+            console.log(filtradas);
+       }else{
+         filtradas = [];
+       }
+       mostrarTareas();
+    }   
     async function obtenerTareas() {
         try {
             const id = obtenerProyecto();
@@ -12,16 +27,18 @@
             const respuesta = await fetch(url);
             const resultado = await respuesta.json();
             tareas = resultado.tareas;
-            mostrarTareas(tareas);
+            mostrarTareas();
 
         } catch (error) {
             console.log(error);
         }
     }
-    function mostrarTareas(tareas = []) {
+    function mostrarTareas() {
         limpiarTareas();
-
-        if (tareas.length === 0) {
+        totalPendiente();
+        totalCompletas()
+        const arrayTareas = filtradas.length ? filtradas : tareas;
+        if (arrayTareas.length === 0 ) {
             const contenedorTareas = document.querySelector('#listado_tareas');
             const textoNoTareas = document.createElement('LI');
             textoNoTareas.textContent = 'No hay tareas';
@@ -34,7 +51,7 @@
             0: 'Pendiente',
             1: 'Completa'
         }
-        tareas.forEach(tarea => {
+        arrayTareas.forEach(tarea => {
             const contenedorTarea = document.createElement('LI');
             contenedorTarea.dataset.tareaId = tarea.id;
             contenedorTarea.classList.add('tarea');
@@ -121,7 +138,25 @@
         document.querySelector('.dashboard').appendChild(modal);
 
     }
- 
+    function totalPendiente (){
+        const totalPendiente = tareas.filter(tarea => tarea.estado === "0");
+        const pendientesRadio = document.querySelector('#pendientes');
+        if (totalPendiente.length === 0){
+            pendientesRadio.disabled = true;
+
+        }else{
+            pendientesRadio.disabled = false;
+        }
+    }
+    function totalCompletas(){
+        const totalCompletas = tareas.filter(tarea => tarea.estado === "1");
+        const completadasRadio = document.querySelector('#completadas');
+        if (totalCompletas.length === 0){
+            completadasRadio.disabled = true;
+        }else{
+            completadasRadio.disabled = false;
+        }  
+    }
     function mostrarAlerta(mensaje, tipo, referencia) {
         const alertaPrevia = document.querySelector('.alertas');
         if (alertaPrevia) {
@@ -163,7 +198,7 @@
                     proyectoId: resultado.proyectoId
                 }
                 tareas = [...tareas, tareaOb];
-                mostrarTareas(tareas);
+                mostrarTareas();
             }
         } catch (error) {
             console.log('error');
@@ -247,7 +282,7 @@
                 Swal.fire('Eliminado!', repuesta.mensaje, 'success');
                 tareas = tareas.filter(tareaMemoria => tareaMemoria.id != id);
                 console.log(id);
-                mostrarTareas(tareas);
+                mostrarTareas();
             }
 
 
